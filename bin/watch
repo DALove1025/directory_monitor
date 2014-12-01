@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require "directory_monitor"
+
+dm = DirectoryMonitor::DirectoryMonitor.new
+puts dm.message
+
