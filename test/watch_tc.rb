@@ -14,6 +14,18 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
   public
 
+    def test_no_command_provided
+      watch("") do |response|
+        assert_match("Error: shell command is required", response)
+      end
+    end
+
+   def test_shell_command
+     watch("-D some shell command") do |response|
+       assert_match("shell-command: some shell command", response)
+     end
+   end
+
     def test_options_unknown
       watch("-x", "--xyzzy") do |response|
         assert_match("Error: unknown argument", response)
@@ -35,9 +47,9 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
       end
     end
 
-    def test_no_command_provided
-      watch("") do |response|
-        assert_match("Error: shell command is required", response)
+    def test_options_suffix
+      watch('-D -s "\.rb" echo', '-D --suffix="\.rb" echo') do |response|
+        assert_match("suffix: \\.rb", response)
       end
     end
 

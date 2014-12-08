@@ -26,7 +26,7 @@ Banner = <<-eos
       # Every 5 seconds, run a rake task if any ruby or Yaml files changed.
 
   Usage
-      #{ProgName} [-cfhlvV] [-d <float>] [-st <str>] <shell-command>
+      #{ProgName} [-cDfhlvV] [-d <float>] [-st <str>] <shell-command>
 eos
 
 # Use trollop to handle all our options switches and verify we have some sort
@@ -35,8 +35,8 @@ eos
 opts = Trollop::options do
   version "#{Version}"
   banner Banner.gsub(/^#{Banner[/^ +/, 0]}/, "")
-#  opt :suffix,  "Regex for file name suffix, limits the files being watched",
-#                :type => :string
+  opt :suffix,  "Regex for file name suffix, limits the files being watched",
+                :type => :string
 #  opt :delay,   "Seconds to sleep between looks at the directory",
 #                :default => 5.0
 #  opt :cascade, "Let changes caused by command trigger the next watch"
@@ -46,7 +46,20 @@ opts = Trollop::options do
 #                :type => :string
 #  opt :verbose, "Log status information to standard output",
 #                :short => "V"
+  opt :debug,   "Print debugging information and exit",
+                :short => "D"
 end
 
 Trollop::die "shell command is required" if ARGV.empty?
+opts[:shell_command] = ARGV.join(" ")
+
+# If we have the debug flag set, display everything we've extracted from the
+# command-line and exit.
+
+if opts[:debug]
+  puts "#{ProgName} debug information"
+  puts "  shell-command: #{opts[:shell_command]}"
+  puts "  suffix: #{opts[:suffix]}" if opts[:suffix_given]
+  exit
+end
 
