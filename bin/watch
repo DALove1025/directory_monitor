@@ -1,7 +1,12 @@
 #!/usr/bin/env ruby
 
+require "trollop"
 require "directory_monitor"
 
-dm = DirectoryMonitor::DirectoryMonitor.new
-puts dm.message
+ProgName = File.basename($PROGRAM_NAME, File.extname($PROGRAM_NAME)) 
+Version = "#{ProgName} (#{DirectoryMonitor::VERSION})" 
+
+opts = Trollop::options do
+  version "#{Version}"
+end
 
