@@ -4,15 +4,21 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
   private
 
-    def watch(command)
-      yield (`ruby -Ilib bin/watch #{command} 2>&1`) 
+    # Execute the "watch" script and capturing all output, both stdout and
+    # stderr. Yields to the caller with the scripts output.
+    def watch(*commands)
+      commands.flatten.each do |command|
+        yield (`ruby -Ilib bin/watch #{command} 2>&1`)
+      end
     end
 
   public
 
-    def test_version_options
+    def test_options_version
       expected = "watch (#{DirectoryMonitor::VERSION})"
-      watch("-v") { |result| assert_equal(expected, result.chomp) }
+      watch("-v", "--version") do |actual_response|
+        assert_equal(expected, actual_response.chomp)
+      end
     end
 
 end
