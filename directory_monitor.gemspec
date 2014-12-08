@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["DALove1025@gmail.com"]
   spec.description   = %q{Monitor a directory for file changes.}
   spec.summary       = %q{A Directory Monitor}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/DALove1025/directory_monitor#directorymonitor"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
