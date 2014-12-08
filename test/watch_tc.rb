@@ -53,5 +53,52 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
       end
     end
 
+    def test_options_default_values
+      watch("-D echo") do |response|
+        assert_match("delay: 5.0", response)
+        assert_match("cascade: false", response)
+        assert_match("loop: false", response)
+        assert_match("force: false", response)
+        assert_match("token: %%", response)
+        assert_match("verbose: false", response)
+      end
+    end
+
+    def test_options_delay
+      watch("-D -d 12.3 echo", "-D --delay 12.3 echo", "-D --delay=12.3 echo") do |response|
+        assert_match("delay: 12.3", response)
+      end
+    end
+
+    def test_options_cascade
+      watch("-D -c echo", "-D --cascade echo") do |response|
+        assert_match("cascade: true", response)
+      end
+    end
+    
+    def test_options_loop
+      watch("-D -l echo", "-D --loop echo") do |response|
+        assert_match("loop: true", response)
+      end
+    end
+
+    def test_options_force
+      watch("-D -f echo", "-D --force echo") do |response|
+        assert_match("force: true", response)
+      end
+    end
+
+    def test_options_token
+      watch("-D -t FILE echo", "-D --token FILE echo", "-D --token=FILE echo") do |response|
+        assert_match("token: FILE", response)
+      end
+    end
+
+    def test_options_verbose
+      watch("-D -V echo", "-D --verbose echo") do |response|
+        assert_match("verbose: true", response)
+      end
+    end
+
 end
 

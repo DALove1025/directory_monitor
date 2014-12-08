@@ -37,15 +37,15 @@ opts = Trollop::options do
   banner Banner.gsub(/^#{Banner[/^ +/, 0]}/, "")
   opt :suffix,  "Regex for file name suffix, limits the files being watched",
                 :type => :string
-#  opt :delay,   "Seconds to sleep between looks at the directory",
-#                :default => 5.0
-#  opt :cascade, "Let changes caused by command trigger the next watch"
-#  opt :loop,    "Execute a separate command for each changed file"
-#  opt :force,   "Execute command, on first watch, before first sleep"
-#  opt :token,   "Use this token instead of %% for path name replacement",
-#                :type => :string
-#  opt :verbose, "Log status information to standard output",
-#                :short => "V"
+  opt :delay,   "Seconds to sleep between looks at the directory",
+                :default => 5.0
+  opt :cascade, "Let changes caused by command trigger the next watch"
+  opt :loop,    "Execute a separate command for each changed file"
+  opt :force,   "Execute command, on first watch, before first sleep"
+  opt :token,   "Use this token instead of %% for path name replacement",
+                :default => "%%" 
+  opt :verbose, "Log status information to standard output",
+                :short => "V"
   opt :debug,   "Print debugging information and exit",
                 :short => "D"
 end
@@ -59,7 +59,13 @@ opts[:shell_command] = ARGV.join(" ")
 if opts[:debug]
   puts "#{ProgName} debug information"
   puts "  shell-command: #{opts[:shell_command]}"
-  puts "  suffix: #{opts[:suffix]}" if opts[:suffix_given]
+  puts "  suffix: #{opts[:suffix]}" #if opts[:suffix_given]
+  puts "  delay: #{opts[:delay]}"
+  puts "  cascade: #{opts[:cascade]}"
+  puts "  loop: #{opts[:loop]}"
+  puts "  force: #{opts[:force]}"
+  puts "  token: #{opts[:token]}"
+  puts "  verbose: #{opts[:verbose]}"
   exit
 end
 
