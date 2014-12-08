@@ -4,8 +4,8 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
   private
 
-    # Execute the "watch" script and capturing all output, both stdout and
-    # stderr. Yields to the caller with the scripts output.
+    # Execute the "watch" script and capture all output, both stdout and
+    # stderr, and pass it to the caller with yield.
     def watch(*commands)
       commands.flatten.each do |command|
         yield (`ruby -Ilib bin/watch #{command} 2>&1`)
@@ -14,10 +14,30 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
   public
 
+    def test_options_unknown
+      watch("-x", "--xyzzy") do |response|
+        assert_match("Error: unknown argument", response)
+      end
+    end
+
     def test_options_version
-      expected = "watch (#{DirectoryMonitor::VERSION})"
-      watch("-v", "--version") do |actual_response|
-        assert_equal(expected, actual_response.chomp)
+      watch("-v", "--version") do |response|
+        assert_match("watch (#{DirectoryMonitor::VERSION})", response)
+      end
+    end
+
+    def test_options_help
+      watch("-h", "--help") do |response|
+        assert_match("Synopsis", response)  # Spot check the help message.
+        assert_match("Executes", response)
+        assert_match("Usage", response)
+        assert_match("Show this message", response)
+      end
+    end
+
+    def test_no_command_provided
+      watch("") do |response|
+        assert_match("Error: shell command is required", response)
       end
     end
 

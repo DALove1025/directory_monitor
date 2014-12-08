@@ -3,10 +3,50 @@
 require "trollop"
 require "directory_monitor"
 
+# Define the strings we display to the user for version identification and the
+# help message.
+
 ProgName = File.basename($PROGRAM_NAME, File.extname($PROGRAM_NAME)) 
 Version = "#{ProgName} (#{DirectoryMonitor::VERSION})" 
+Banner = <<-eos
+  #{Version} -- Watch a directory for changes
+  Synopsis
+      Executes a shell-command when any files in the current directory tree
+      change. If the command contains a double-percent, %%, it is replaced
+      with a space separated list of path names of the changed files. When
+      used with the --loop option, the command is executed mutiple times,
+      once each for each file that changed and %% is replaced with just one
+      path name on each execution.
+
+  Examples
+      watch -cld 10 echo File %% has changed
+      # Every 10 seconds, display each changed file on a separate line.
+      
+      watch -s "\\.rb|\\.yaml" rake
+      # Every 5 seconds, run a rake task if any ruby or Yaml files changed.
+
+  Usage
+      #{ProgName} [-cfhlvV] [-d <float>] [-st <str>] <shell-command>
+eos
+
+# Use trollop to handle all our options switches and verify we have some sort
+# of shell-command specified on the command-line.
 
 opts = Trollop::options do
   version "#{Version}"
+  banner Banner.gsub(/^#{Banner[/^ +/, 0]}/, "")
+#  opt :suffix,  "Regex for file name suffix, limits the files being watched",
+#                :type => :string
+#  opt :delay,   "Seconds to sleep between looks at the directory",
+#                :default => 5.0
+#  opt :cascade, "Let changes caused by command trigger the next watch"
+#  opt :loop,    "Execute a separate command for each changed file"
+#  opt :force,   "Execute command, on first watch, before first sleep"
+#  opt :token,   "Use this token instead of %% for path name replacement",
+#                :type => :string
+#  opt :verbose, "Log status information to standard output",
+#                :short => "V"
 end
+
+Trollop::die "shell command is required" if ARGV.empty?
 
