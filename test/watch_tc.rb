@@ -22,7 +22,7 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
    def test_shell_command
      watch("-D some shell command") do |response|
-       assert_match("shell-command: some shell command", response)
+       assert_match("shell_command: some shell command", response)
      end
    end
 
@@ -47,20 +47,21 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
       end
     end
 
-    def test_options_suffix
-      watch('-D -s "\.rb" echo', '-D --suffix="\.rb" echo') do |response|
-        assert_match("suffix: \\.rb", response)
-      end
-    end
-
     def test_options_default_values
       watch("-D echo") do |response|
+        assert_match("suffix: .*", response)
         assert_match("delay: 5.0", response)
         assert_match("cascade: false", response)
         assert_match("loop: false", response)
         assert_match("force: false", response)
         assert_match("token: %%", response)
         assert_match("verbose: false", response)
+      end
+    end
+
+    def test_options_suffix
+      watch('-D -s "\.rb" echo', '-D --suffix="\.rb" echo') do |response|
+        assert_match("suffix: \\.rb", response)
       end
     end
 

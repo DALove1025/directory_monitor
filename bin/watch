@@ -19,11 +19,11 @@ Banner = <<-eos
       path name on each execution.
 
   Examples
-      watch -cld 10 echo File %% has changed
+      watch -cld 10 \"echo File %% has changed\"
       # Every 10 seconds, display each changed file on a separate line.
       
       watch -s "\\.rb|\\.yaml" rake
-      # Every 5 seconds, run a rake task if any ruby or Yaml files changed.
+      # Every 5 seconds, run a rake task if any ruby or Yaml files change.
 
   Usage
       #{ProgName} [-cDfhlvV] [-d <float>] [-st <str>] <shell-command>
@@ -35,19 +35,14 @@ eos
 opts = Trollop::options do
   version "#{Version}"
   banner Banner.gsub(/^#{Banner[/^ +/, 0]}/, "")
-  opt :suffix,  "Regex for file name suffix, limits the files being watched",
-                :type => :string
-  opt :delay,   "Seconds to sleep between looks at the directory",
-                :default => 5.0
-  opt :cascade, "Let changes caused by command trigger the next watch"
-  opt :loop,    "Execute a separate command for each changed file"
-  opt :force,   "Execute command, on first watch, before first sleep"
-  opt :token,   "Use this token instead of %% for path name replacement",
-                :default => "%%" 
-  opt :verbose, "Log status information to standard output",
-                :short => "V"
-  opt :debug,   "Print debugging information and exit",
-                :short => "D"
+  opt :suffix,  "Regex to select the files being watched",    :default => ".*"
+  opt :delay,   "Seconds to sleep between watches",           :default => 5.0
+  opt :cascade, "Let shell-command trigger next watch"
+  opt :loop,    "Use separate command for each changed file"
+  opt :force,   "Force command at first, on all watched files"
+  opt :token,   "Use instead of %%, for name substitution",   :default => "%%"
+  opt :verbose, "Log status information to standard output",  :short => "V"
+  opt :debug,   "Print debugging information and exit",       :short => "D"
 end
 
 Trollop::die "shell command is required" if ARGV.empty?
@@ -58,14 +53,20 @@ opts[:shell_command] = ARGV.join(" ")
 
 if opts[:debug]
   puts "#{ProgName} debug information"
-  puts "  shell-command: #{opts[:shell_command]}"
-  puts "  suffix: #{opts[:suffix]}" #if opts[:suffix_given]
-  puts "  delay: #{opts[:delay]}"
-  puts "  cascade: #{opts[:cascade]}"
-  puts "  loop: #{opts[:loop]}"
-  puts "  force: #{opts[:force]}"
-  puts "  token: #{opts[:token]}"
-  puts "  verbose: #{opts[:verbose]}"
+  [ :suffix, :delay, :cascade, :loop,
+    :force,  :token, :verbose, :shell_command ].each do |option|
+    puts "  #{option.to_s}: #{opts[option]}"
+  end
   exit
+end
+
+# We're ready to do the real work, now. Setup a directory monitor with the
+# appropriate settings and use it to construct the shell commands.
+
+dm = DirectoryMonitor::DirectoryMonitor.new(opts[:suffix], opts[:delay])
+dm.on_change(opts[:loop], opts[:force], opts[:cascade]) do |*changed|
+  shell_cmd = "#{opts[:shell_command].sub(opts[:token], changed.join(' '))}"
+  puts shell_cmd if opts[:verbose]
+  system(shell_cmd, out: $stdout, err: $stderr)
 end
 
