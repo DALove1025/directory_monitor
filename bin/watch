@@ -5,10 +5,9 @@
 require "directory_monitor"
 require "directory_monitor/options"
 
-at_exit { puts "\n#{ProgName} canceled" }
-
 opts = Options.parse
 dm = DirectoryMonitor::DirectoryMonitor.new(opts[:suffix], opts[:delay])
+at_exit { puts "\n#{ProgName} canceled" }
 dm.on_change(opts[:loop], opts[:force]) do |*changed|
   shell_cmd = "#{opts[:shell_command].sub(opts[:token], changed.join(' '))}"
   puts shell_cmd if opts[:verbose]
