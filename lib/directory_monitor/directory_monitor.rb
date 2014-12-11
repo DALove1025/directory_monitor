@@ -56,20 +56,14 @@ module DirectoryMonitor
         @ctimes = {}
       end
 
-      # on_change never returns, loops forever
-      def on_change(loopflag = false, force = false, cascade = false)
+      def on_change(loopflag = false, force = false)  # loops forever.
         find unless force
         loop do
-          sleep(@delay)
-          changed_files = find
-          if loopflag
-            changed_files.each do |file|
-              yield file
-            end
-          else
-            yield changed_files if changed_files.length != 0
+          (loopflag ? find : [ find.join(" ") ]).each do |str|
+            yield str unless str == ""
           end
-          find unless cascade
+          find
+          sleep(@delay)
         end
       end 
 

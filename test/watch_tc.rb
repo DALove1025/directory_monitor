@@ -2,12 +2,22 @@ require "test_helper"
 
 class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
 
+  # We need a set of tests that run "out of process" in a way that let's us
+  # both verify that the watch script executable is sort of working, as well
+  # as to verify that --help, --version, and error conditions result in an
+  # appropriate behavior the user will understand.
+
+  # Note that since these tests are run "out of process" by using the system
+  # command (back-tick style), that these test runs do generate input into
+  # the code-coverage report. There aren't many, so it really makes little
+  # difference.
+
   private
 
     # Execute the "watch" script and capture all output, both stdout and
     # stderr, and pass it to the caller with yield.
     def watch(*commands)
-      commands.flatten.each do |command|
+      commands.each do |command|
         yield (`ruby -Ilib bin/watch #{command} 2>&1`)
       end
     end
@@ -19,12 +29,6 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
         assert_match("Error: shell command is required", response)
       end
     end
-
-   def test_shell_command
-     watch("-D some shell command") do |response|
-       assert_match("shell_command: some shell command", response)
-     end
-   end
 
     def test_options_unknown
       watch("-x", "--xyzzy") do |response|
@@ -44,60 +48,6 @@ class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
         assert_match("Executes", response)
         assert_match("Usage", response)
         assert_match("Show this message", response)
-      end
-    end
-
-    def test_options_default_values
-      watch("-D echo") do |response|
-        assert_match("suffix: .*", response)
-        assert_match("delay: 5.0", response)
-        assert_match("cascade: false", response)
-        assert_match("loop: false", response)
-        assert_match("force: false", response)
-        assert_match("token: %%", response)
-        assert_match("verbose: false", response)
-      end
-    end
-
-    def test_options_suffix
-      watch('-D -s "\.rb" echo', '-D --suffix="\.rb" echo') do |response|
-        assert_match("suffix: \\.rb", response)
-      end
-    end
-
-    def test_options_delay
-      watch("-D -d 12.3 echo", "-D --delay 12.3 echo", "-D --delay=12.3 echo") do |response|
-        assert_match("delay: 12.3", response)
-      end
-    end
-
-    def test_options_cascade
-      watch("-D -c echo", "-D --cascade echo") do |response|
-        assert_match("cascade: true", response)
-      end
-    end
-    
-    def test_options_loop
-      watch("-D -l echo", "-D --loop echo") do |response|
-        assert_match("loop: true", response)
-      end
-    end
-
-    def test_options_force
-      watch("-D -f echo", "-D --force echo") do |response|
-        assert_match("force: true", response)
-      end
-    end
-
-    def test_options_token
-      watch("-D -t FILE echo", "-D --token FILE echo", "-D --token=FILE echo") do |response|
-        assert_match("token: FILE", response)
-      end
-    end
-
-    def test_options_verbose
-      watch("-D -V echo", "-D --verbose echo") do |response|
-        assert_match("verbose: true", response)
       end
     end
 

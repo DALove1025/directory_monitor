@@ -1,9 +1,8 @@
 require "test_helper"
-require "directory_monitor"
 
 # Unit testing the DirectoryMonitor class requires a file system that knows
 # about filenames and modification times.  The following class allows us to
-# model a simple file system; and, in the process, simulate implementations
+# mock a simple file system; and, in the process, simulate implementations
 # of the two class methods that are dependencies of the DirectoryMonitor.
 
 class ErsatzFileSystem
@@ -50,26 +49,26 @@ class DirectoryMonitor_Base_TestCase < MiniTest::Unit::TestCase
         Ellie.txt
         Frank.rb
         Gloria.txt
-        Hellen.dat
+        Hank.dat
         Ira.rb.foo
         }.each { |f| ErsatzFileSystem.touch(f) }
     end
   
-    def setup_watcher(suffix, loopflag = false, force = false, cascade = false)
+    def setup_watcher(suffix, loopflag = false, force = false)
       @dm = DirectoryMonitor::DirectoryMonitor.new(suffix)
-      @dm.Find = ErsatzFileSystem
+      @dm.Find = ErsatzFileSystem  # Dependency injection for these unit tests
       @dm.File = ErsatzFileSystem
       @yield_history = []
       @dm_fiber = Fiber.new do
-        @dm.on_change(loopflag, force, cascade) do |file_response|
+        @dm.on_change(loopflag, force) do |file_response|
           @yield_history << file_response
         end
       end
       @dm_fiber.resume
     end
 
-    def run_watcher(changed_files = [])
-      changed_files.each{ |f| ErsatzFileSystem.touch(f) }
+    def run_watcher(*changed_files)
+      changed_files.each{ |file| ErsatzFileSystem.touch(file) }
       @dm_fiber.resume
     end
 
@@ -96,42 +95,39 @@ class DirectoryMonitor_TestCase < DirectoryMonitor_Base_TestCase
   end
 
   def test_only_one_yield_per_set_of_changes
-    run_watcher(['Cindy.rb'])
-    assert_equal(1, @yield_history.length, "Should be exactly 1 yield")
-    run_watcher(['Cindy.rb', 'Dan.dat'])
-    assert_equal(2, @yield_history.length, "Should be exactly 2 yields")
+    run_watcher("Cindy.rb")
+    assert_equal(1, @yield_history.length)
+    run_watcher("Billy.rb", "Cindy.rb", "Dan.dat")
+    assert_equal(2, @yield_history.length)
   end
 
-  def test_change_one_file
-    run_watcher(['Cindy.rb'])
-    assert_equal(1, @yield_history.length[0], "Should be 1 file change")
-    assert_equal('Cindy.rb', @yield_history[0][0], "Unexpected file name")
+  def test_change_one_watched_file
+    run_watcher("Cindy.rb")
+    assert_equal(1, @yield_history.length)
+    assert_equal("Cindy.rb", @yield_history[0])
   end
 
-  def test_change_two_files
-    run_watcher(['Cindy.rb', 'Frank.rb'])
-    assert_equal(2, @yield_history[0].length, "Multiple file changes failed")
-    assert_equal('Cindy.rb', @yield_history[0][0], "Unexpected file name")
-    assert_equal('Frank.rb', @yield_history[0][1], "Unexpected file name")
+  def test_change_two_watched_files
+    run_watcher("Cindy.rb", "Frank.rb")
+    assert_equal(1, @yield_history.length)
+    assert_equal("Cindy.rb Frank.rb", @yield_history[0])
   end
 
-  def test_no_yields_on_unwatched_file_changes
-    run_watcher(['Dan.dat'])
-    assert_equal(0, @yield_history.length, "Unexpected yield occured")
+  def test_no_yields_on_unwatched_file_change
+    run_watcher("Dan.dat")
+    assert_equal(0, @yield_history.length)
   end
 
-  def test_yield_with_both_watched_and_unwatched_changes
-    run_watcher(['Abby.txt', 'Cindy.rb', 'Dan.dat', 'Frank.rb'])
-    assert_equal(1, @yield_history.length, 'Only 1 yield')
-    assert_equal(2, @yield_history[0].length, 'Only 2 watched files')
-    assert_equal('Cindy.rb', @yield_history[0][0], "Unexpected file name")
-    assert_equal('Frank.rb', @yield_history[0][1], "Unexpected file name")
+  def test_yield_with_both_watched_and_unwatched_files
+    run_watcher("Abby.txt", "Cindy.rb", "Dan.dat", "Frank.rb")
+    assert_equal(1, @yield_history.length)
+    assert_equal("Cindy.rb Frank.rb", @yield_history[0])
   end
 
-  def test_regex_embeded_suffix
-    run_watcher(['Abby.txt', 'Billy.rb', 'Helen.dat', 'Ira.rb.foo'])
-    assert_equal(1, @yield_history.length, 'Only 1 yield')
-    assert_equal(1, @yield_history[0].length, 'Only 1 watched file')
+  def test_regex_suffix_anchored_at_end_of_filename
+    run_watcher("Abby.txt", "Billy.rb", "Helen.dat", "Ira.rb.foo")
+    assert_equal(1, @yield_history.length)
+    assert_equal("Billy.rb", @yield_history[0])
   end
 
 end
@@ -144,10 +140,10 @@ class DirectoryMonitor_Looping_TestCase < DirectoryMonitor_Base_TestCase
   end
 
   def test_looping_yields_for_each_watched_file
-    run_watcher(['Abby.txt', 'Cindy.rb', 'Dan.dat', 'Frank.rb'])
-    assert_equal(2, @yield_history.length, 'Should yield twice for 2 files')
-    assert_equal('Cindy.rb', @yield_history[0], "Unexpected file name")
-    assert_equal('Frank.rb', @yield_history[1], "Unexpected file name")
+    run_watcher("Abby.txt", "Cindy.rb", "Dan.dat", "Frank.rb")
+    assert_equal(2, @yield_history.length)
+    assert_equal("Cindy.rb", @yield_history[0])
+    assert_equal("Frank.rb", @yield_history[1])
   end
  
 end
@@ -161,10 +157,25 @@ class DirectoryMonitor_Force_TestCase < DirectoryMonitor_Base_TestCase
 
   def test_initial_forced_yields_all_watched_files
     run_watcher
-    assert_equal(1, @yield_history.length, 'Only 1 yield expected')
-    assert_equal('Billy.rb', @yield_history[0][0], "Unexpected file name")
-    assert_equal('Cindy.rb', @yield_history[0][1], "Unexpected file name")
-    assert_equal('Frank.rb', @yield_history[0][2], "Unexpected file name")
+    assert_equal(1, @yield_history.length)
+    assert_equal("Billy.rb Cindy.rb Frank.rb", @yield_history[0])
+  end
+ 
+end
+
+class DirectoryMonitor_Loop_And_Force_TestCase < DirectoryMonitor_Base_TestCase
+
+  def setup
+    setup_file_system
+    setup_watcher("\\.rb|xyzzy", true, true)
+  end
+
+  def test_initial_forced_yields_all_watched_files
+    run_watcher
+    assert_equal(3, @yield_history.length)
+    assert_equal("Billy.rb", @yield_history[0])
+    assert_equal("Cindy.rb", @yield_history[1])
+    assert_equal("Frank.rb", @yield_history[2])
   end
  
 end
