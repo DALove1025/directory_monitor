@@ -5,6 +5,8 @@
 require "directory_monitor"
 require "directory_monitor/options"
 
+at_exit { puts "\n#{ProgName} canceled" }
+
 opts = Options.parse
 dm = DirectoryMonitor::DirectoryMonitor.new(opts[:suffix], opts[:delay])
 dm.on_change(opts[:loop], opts[:force]) do |*changed|

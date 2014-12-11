@@ -57,13 +57,27 @@ module DirectoryMonitor
       end
 
       def on_change(loopflag = false, force = false)  # loops forever.
+        # Unless it's inhibited by the force flag, use the find method to
+        # pre-populate the hash of file-names and ctimes.
         find unless force
-        loop do
-          (loopflag ? find : [ find.join(" ") ]).each do |str|
-            yield str unless str == ""
+        begin
+          loop do
+            (loopflag ? find : [ find.join(" ") ]).each do |str|
+              yield str unless str == ""
+            end
+            # Now that we are done with all our yields, use find, one more time
+            # to record all the current ctimes. Since we are done, we can safely
+            # go back to sleep.
+            find
+            sleep(@delay)
           end
-          find
-          sleep(@delay)
+        rescue SystemExit, Interrupt
+          # Since this is an infinite loop, we sort of expect that an app using
+          # this class will be shut down by a signal or interrupt. So, to be a
+          # bit more graceful, we detect these conditions and "go gently into
+          # that good night." If the app needs to do any clean up, it should
+          # probably implement a trap("EXIT") handler.
+          exit
         end
       end 
 
