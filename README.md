@@ -4,7 +4,7 @@ The DirectoryMonitor is a very simple utility class used to watch for file
 modifications in a directory tree. In addition to the DirectoryMonitor class,
 this gem also includes an executable, `watch`, which is a command line wrapper
 for invoking the `DirectoryMonitor#on_change` method and executing a shell-
-command whenever changes are detected.  
+command whenever changes are detected.
 
 ## Installation
 

@@ -53,7 +53,7 @@ class DirectoryMonitor_Base_TestCase < MiniTest::Unit::TestCase
         Ira.rb.foo
         }.each { |f| ErsatzFileSystem.touch(f) }
     end
-  
+
     def setup_watcher(suffix, loopflag = false, force = false)
       @dm = DirectoryMonitor::DirectoryMonitor.new(suffix)
       @dm.Find = ErsatzFileSystem  # Dependency injection for these unit tests
@@ -88,7 +88,7 @@ class DirectoryMonitor_TestCase < DirectoryMonitor_Base_TestCase
     assert_equal(1, @dm.last_parameter, "Default delay should be 1 sec")
     assert_equal(0, @yield_history.length, "No yields should have happend")
   end
-  
+
   def test_no_yields_without_file_changes
     run_watcher
     assert_equal(0, @yield_history.length)
@@ -145,7 +145,7 @@ class DirectoryMonitor_Looping_TestCase < DirectoryMonitor_Base_TestCase
     assert_equal("Cindy.rb", @yield_history[0])
     assert_equal("Frank.rb", @yield_history[1])
   end
- 
+
 end
 
 class DirectoryMonitor_Force_TestCase < DirectoryMonitor_Base_TestCase
@@ -160,7 +160,7 @@ class DirectoryMonitor_Force_TestCase < DirectoryMonitor_Base_TestCase
     assert_equal(1, @yield_history.length)
     assert_equal("Billy.rb Cindy.rb Frank.rb", @yield_history[0])
   end
- 
+
 end
 
 class DirectoryMonitor_Loop_And_Force_TestCase < DirectoryMonitor_Base_TestCase
@@ -177,6 +177,6 @@ class DirectoryMonitor_Loop_And_Force_TestCase < DirectoryMonitor_Base_TestCase
     assert_equal("Cindy.rb", @yield_history[1])
     assert_equal("Frank.rb", @yield_history[2])
   end
- 
+
 end
 
