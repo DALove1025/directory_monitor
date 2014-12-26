@@ -1,7 +1,7 @@
 require "test_helper"
 require "directory_monitor/options"
 
-class Optionse_TestCase < MiniTest::Unit::TestCase
+class Optionse_TestCase < Minitest::Test
 
   private
 

@@ -36,7 +36,7 @@ class DirectoryMonitor::DirectoryMonitor
   end
 end
 
-class DirectoryMonitor_Base_TestCase < MiniTest::Unit::TestCase
+class DirectoryMonitor_Base_TestCase < Minitest::Test
 
   private
 
