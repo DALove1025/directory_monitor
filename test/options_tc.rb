@@ -13,7 +13,7 @@ class Optionse_TestCase < MiniTest::Unit::TestCase
       Object.send(:remove_const, "ARGV")
       Object.const_set("ARGV", args)
     end
-   
+
   public
 
     def test_default_values
@@ -27,7 +27,7 @@ class Optionse_TestCase < MiniTest::Unit::TestCase
       assert_equal(false,  opts[:verbose])
       assert_equal("echo", opts[:shell_command])
     end
-    
+
     def test_suffix
       set_argv("-s", "\\.rb", "echo")
       assert_equal("\\.rb", Options.parse[:suffix])

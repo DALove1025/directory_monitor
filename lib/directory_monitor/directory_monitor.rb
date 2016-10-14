@@ -37,11 +37,11 @@ module DirectoryMonitor
         files.each { |f| @ctimes[f] = @File.ctime(f) }
         files
       end
-  
+
       def find_changed
         @Find.find('.').select { |f| f =~ @re && @ctimes[f] != @File.ctime(f) }
       end
-    
+
       def find
         save_ctimes(find_changed)
       end
@@ -79,7 +79,7 @@ module DirectoryMonitor
           # probably implement a trap("EXIT") handler.
           exit
         end
-      end 
+      end
 
   end
 

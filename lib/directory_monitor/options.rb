@@ -4,8 +4,8 @@ require "trollop"
 
 # Define the strings we display to the user for version identification and the
 # help message.
-ProgName = File.basename($PROGRAM_NAME, File.extname($PROGRAM_NAME)) 
-Version = "#{ProgName} (#{DirectoryMonitor::VERSION})" 
+ProgName = File.basename($PROGRAM_NAME, File.extname($PROGRAM_NAME))
+Version = "#{ProgName} (#{DirectoryMonitor::VERSION})"
 Banner = <<-eos
   #{Version} -- Watch a directory for changes
   Synopsis
@@ -26,7 +26,7 @@ Banner = <<-eos
   Examples
       watch -l -d 10 \"echo File %% has changed\"
       # Every 10 seconds, display each changed file on a separate line.
-      
+
       watch -s "\\.rb|\\.yaml" rake
       # Every 5 seconds, run a rake task if any ruby or Yaml file changes.
 
