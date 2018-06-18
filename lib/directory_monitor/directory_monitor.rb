@@ -46,6 +46,10 @@ module DirectoryMonitor
         save_ctimes(find_changed)
       end
 
+      def prepopulate_hash(force_flag)
+        find unless force_flag     # Skip, so all files appear changed.
+      end
+
     public
 
       attr_writer :Find, :File     # Used by the unit tests, see below.
@@ -57,29 +61,19 @@ module DirectoryMonitor
       end
 
       def on_change(loopflag = false, force = false)  # loops forever.
-
-        def prepopulate_hash(force_flag)
-          find unless force_flag  # Skip, to force the first run.
-        end
-
         prepopulate_hash(force)
         begin
           loop do
             (loopflag ? find : [ find.join(" ") ]).each do |str|
               yield str unless str == ""
             end
-            # Now that we are done with all our yields, use find, one more time
-            # to record all the current ctimes. Since we are done, we can safely
-            # go back to sleep.
-            find
+            find                    # Now, use find to latest current ctimes.
             sleep(@delay)
           end
         rescue SystemExit, Interrupt
-          # Since this is an infinite loop, we sort of expect that an app using
-          # this class will be shut down by a signal or interrupt. So, to be a
-          # bit more graceful, we detect these conditions and "go gently into
-          # that good night." If the app needs to do any clean up, it should
-          # probably implement a trap("EXIT") handler.
+          # We expect an app using this infinite loop will be shutdown by a
+          # signal or interrupt. We look for that, here. If client code nees
+          # to cleanup, it should probably implement a trap("EXIT") handler.
           exit
         end
       end
