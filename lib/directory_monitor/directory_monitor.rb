@@ -46,8 +46,18 @@ module DirectoryMonitor
         save_ctimes(find_changed)
       end
 
-      def prepopulate_hash(force_flag)
+      def pre_populate_hash(force_flag)
         find unless force_flag     # Skip, so all files appear changed.
+      end
+
+      def loop_forever(loopflag, cmd)
+        loop do
+          (loopflag ? find : [ find.join(" ") ]).each do |str|
+            cmd.call str unless str == ""
+          end
+          find                     # Now, use find to update current ctimes.
+          sleep(@delay)
+        end
       end
 
     public
@@ -60,20 +70,14 @@ module DirectoryMonitor
         @ctimes = {}
       end
 
-      def on_change(loopflag = false, force = false)  # loops forever.
-        prepopulate_hash(force)
+      def on_change(loopflag = false, force = false, &cmd)  # loops forever.
+        # We expect an app using this infinite loop will be shutdown by a
+        # signal or interrupt. We look for that, here. If client code needs
+        # to cleanup, it should probably implement a trap("EXIT") handler.
+        pre_populate_hash(force)
         begin
-          loop do
-            (loopflag ? find : [ find.join(" ") ]).each do |str|
-              yield str unless str == ""
-            end
-            find                    # Now, use find to latest current ctimes.
-            sleep(@delay)
-          end
+          loop_forever(loopflag, cmd)
         rescue SystemExit, Interrupt
-          # We expect an app using this infinite loop will be shutdown by a
-          # signal or interrupt. We look for that, here. If client code nees
-          # to cleanup, it should probably implement a trap("EXIT") handler.
           exit
         end
       end
