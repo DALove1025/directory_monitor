@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Watch_Commandline_TestCase < MiniTest::Unit::TestCase
+class Watch_Commandline_TestCase < MiniTest::Test
 
   # We need a set of tests that run "out of process" in a way that let's us
   # both verify that the watch script executable is sort of working, as well

@@ -57,9 +57,12 @@ module DirectoryMonitor
       end
 
       def on_change(loopflag = false, force = false)  # loops forever.
-        # Unless it's inhibited by the force flag, use the find method to
-        # pre-populate the hash of file-names and ctimes.
-        find unless force
+
+        def prepopulate_hash(force_flag)
+          find unless force_flag  # Skip, to force the first run.
+        end
+
+        prepopulate_hash(force)
         begin
           loop do
             (loopflag ? find : [ find.join(" ") ]).each do |str|
