@@ -52,7 +52,7 @@ module DirectoryMonitor
 
       def fetch_change_list(loopflag)
         if loopflag                     # Here, we simply return the list of
-          find_changed                  # file names that changed.
+          find_changed                  # file/path names that changed.
         else
           [ find_changed.join(" ") ]    # Here, we combine them into a single
         end                             # string, in other words, no looping.
