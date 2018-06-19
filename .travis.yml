@@ -8,17 +8,17 @@ rvm:
   - jruby-19mode
   - jruby-head
 
-env:
-  global:
-    - CC_TEST_REPORTER_ID=01dc2bc991727de96a14d180ee9b9a10e5feb44ff0efc7d2fc92eaf63fb24093
-
-before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-
-script:
-  - bundle exec rspec
-
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+# env:
+#   global:
+#     - CC_TEST_REPORTER_ID=01dc2bc991727de96a14d180ee9b9a10e5feb44ff0efc7d2fc92eaf63fb24093
+# 
+# before_script:
+#   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+#   - chmod +x ./cc-test-reporter
+#   - ./cc-test-reporter before-build
+# 
+# script:
+#   - bundle exec rspec
+# 
+# after_script:
+#   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
