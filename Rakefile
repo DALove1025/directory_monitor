@@ -10,6 +10,6 @@ end
 
 desc "Run a local continuous integration loop"
 task :ci do
-  exec 'watch --force --delay=0.5 -s "\.rb|watch" "clear; Rake"'
+  exec 'watch --force --delay=0.5 -s "\.rb|\.yml|watch" "clear; Rake"'
 end
 

@@ -7,5 +7,3 @@ rvm:
   - 2.2.0
   - jruby-19mode
   - jruby-head
-  - rbx-19mode
-  - rbx-2
