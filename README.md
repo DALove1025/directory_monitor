@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DALove1025/directory_monitor.svg?branch=master)](https://travis-ci.org/DALove1025/directory_monitor)
+
 # DirectoryMonitor
 
 The DirectoryMonitor is a very simple utility class used to watch for file
