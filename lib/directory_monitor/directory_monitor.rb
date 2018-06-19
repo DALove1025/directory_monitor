@@ -50,20 +50,13 @@ module DirectoryMonitor
         find unless force_flag     # Skip, so all files appear changed.
       end
 
-#      def loop_forever(loopflag, cmd)
-#        loop do
-#          (loopflag ? find : [ find.join(" ") ]).each do |str|
-#            cmd.call str unless str == ""
-#          end
-#          find                     # Now, use find to update current ctimes.
-#          sleep(@delay)
-#        end
-#      end
-
       def loop_forever(loopflag, cmd)
         loop do
-          change_list = find
-          change_list = [change_list.join(" ")] unless loopflag
+          change_list = find_changed
+#          change_list = [change_list.join(" ")] unless loopflag
+          if ! loopflag
+            change_list = [ change_list.join(" ") ]
+          end
           change_list.each do |str|
             cmd.call str unless str == ""
           end
@@ -71,7 +64,7 @@ module DirectoryMonitor
           sleep(@delay)
         end
       end
-
+            
     public
 
       attr_writer :Find, :File     # Used by the unit tests, see below.
@@ -82,7 +75,7 @@ module DirectoryMonitor
         @ctimes = {}
       end
 
-      def on_change(loopflag = false, force = false, &cmd)  # loops forever.
+      def on_change(loopflag = false, force = false, &cmd)
         # We expect an app using this infinite loop will be shutdown by a
         # signal or interrupt. We look for that, here. If client code needs
         # to cleanup, it should probably implement a trap("EXIT") handler.
