@@ -50,12 +50,24 @@ module DirectoryMonitor
         find unless force_flag     # Skip, so all files appear changed.
       end
 
+#      def loop_forever(loopflag, cmd)
+#        loop do
+#          (loopflag ? find : [ find.join(" ") ]).each do |str|
+#            cmd.call str unless str == ""
+#          end
+#          find                     # Now, use find to update current ctimes.
+#          sleep(@delay)
+#        end
+#      end
+
       def loop_forever(loopflag, cmd)
         loop do
-          (loopflag ? find : [ find.join(" ") ]).each do |str|
+          change_list = find
+          change_list = [change_list.join(" ")] unless loopflag
+          change_list.each do |str|
             cmd.call str unless str == ""
           end
-          find                     # Now, use find to update current ctimes.
+          find
           sleep(@delay)
         end
       end
