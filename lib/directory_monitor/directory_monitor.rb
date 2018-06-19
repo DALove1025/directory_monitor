@@ -47,17 +47,20 @@ module DirectoryMonitor
       end
 
       def pre_populate_hash(force_flag)
-        find unless force_flag     # Skip, so all files appear changed.
+        find unless force_flag          # Skip, so all files appear changed.
+      end
+
+      def fetch_change_list(loopflag)
+        if loopflag                     # Here, we simply return the list of
+          find_changed                  # file names that changed.
+        else
+          [ find_changed.join(" ") ]    # Here, we combine them into a single
+        end                             # string, in other words, no looping.
       end
 
       def loop_forever(loopflag, cmd)
         loop do
-          change_list = find_changed
-#          change_list = [change_list.join(" ")] unless loopflag
-          if ! loopflag
-            change_list = [ change_list.join(" ") ]
-          end
-          change_list.each do |str|
+          fetch_change_list(loopflag).each do |str|
             cmd.call str unless str == ""
           end
           find
@@ -76,9 +79,9 @@ module DirectoryMonitor
       end
 
       def on_change(loopflag = false, force = false, &cmd)
-        # We expect an app using this infinite loop will be shutdown by a
-        # signal or interrupt. We look for that, here. If client code needs
-        # to cleanup, it should probably implement a trap("EXIT") handler.
+        # We expect an app using this infinite loop to be shutdown by a signal
+        # or an interrupt. We look for that, here. If the client code needs to
+        # cleanup, it should probably implement a trap("EXIT") handler.
         pre_populate_hash(force)
         begin
           loop_forever(loopflag, cmd)
