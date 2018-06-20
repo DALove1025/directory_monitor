@@ -74,7 +74,7 @@ class DirectoryMonitor_Base_TestCase < Minitest::Test
 
 end
 
-class DirectoryMonitor_TestCase #< DirectoryMonitor_Base_TestCase
+class DirectoryMonitor_TestCase < DirectoryMonitor_Base_TestCase
 
   # Create the "object under test" with a simulated file system and its own
   # fiber for the on_change event.
@@ -163,7 +163,7 @@ class DirectoryMonitor_Force_TestCase # < DirectoryMonitor_Base_TestCase
 
 end
 
-class DirectoryMonitor_Loop_And_Force_TestCase #< DirectoryMonitor_Base_TestCase
+class DirectoryMonitor_Loop_And_Force_TestCase < DirectoryMonitor_Base_TestCase
 
   def setup
     setup_file_system
