@@ -1,5 +1,14 @@
 [![Build Status](https://travis-ci.org/DALove1025/directory_monitor.svg?branch=master)](https://travis-ci.org/DALove1025/directory_monitor)
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/3ebb4078c1e018b429e6/maintainability)](https://codeclimate.com/github/DALove1025/directory_monitor/maintainability)
+
+[![Test Coverage](https://api.codeclimate.com/v1/badges/3ebb4078c1e018b429e6/test_coverage)](https://codeclimate.com/github/DALove1025/directory_monitor/test_coverage)
+
+
+**OLD ONES**
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability)](https://codeclimate.com/github/DALove1025/directory_monitor/maintainability)
+
 [![Test Coverage](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/test_coverage)](https://codeclimate.com/github/DALove1025/directory_monitor/test_coverage)
 
 # DirectoryMonitor
