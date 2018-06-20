@@ -36,7 +36,7 @@ class DirectoryMonitor::DirectoryMonitor
   end
 end
 
-class DirectoryMonitor_Base_TestCase < Minitest::Test
+class DirectoryMonitor_Base_TestCase #< Minitest::Test
 
   private
 
@@ -148,7 +148,7 @@ class DirectoryMonitor_Looping_TestCase < DirectoryMonitor_Base_TestCase
 
 end
 
-class DirectoryMonitor_Force_TestCase < DirectoryMonitor_Base_TestCase
+class DirectoryMonitor_Force_TestCase # < DirectoryMonitor_Base_TestCase
 
   def setup
     setup_file_system
